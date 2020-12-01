@@ -1,0 +1,20 @@
+{
+  "name": "@scotsoo/dummyservice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Scotsoo/lerna-jenkins-test.git",
+    "directory": "services/DummyService"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@scotsoo/dummymodule": "^0.0.1",
+    "@scotsoo/seconddummymodule": "^1.0.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "packages": [
+    "modules/*",
+    "services/*"
+  ],
+  "private": true,
+  "command": {
+      "version": {
+          "allowBranch": "main"
+      }
+  },
+  "version": "independent",
+  "registry": "https://npm.pkg.github.com"
+}
