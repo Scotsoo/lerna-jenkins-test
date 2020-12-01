@@ -17,7 +17,5 @@
     "@scotsoo/dummymodule": "^1.0.0",
     "@scotsoo/seconddummymodule": "^1.0.0"
   },
-  "devDependencies": {
-    "tape": "^5.0.1"
-  }
+  "devDependencies": {}
 }
