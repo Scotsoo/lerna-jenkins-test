@@ -1,11 +1,17 @@
 pipeline {
   stages {
     stage('Install') {
-      sh 'npm i'
-      sh 'npx lerna bootstrap'
+      steps {
+        script {
+          sh 'npm i'
+          sh 'npx lerna bootstrap'
+        }
+      }
     }
     stage('Trigger') {
-      build job: "test-job", wait: true
+      steps {
+        build job: "test-job", wait: true
+      }
     }
   }
 }
