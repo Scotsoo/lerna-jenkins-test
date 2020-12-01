@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@scotsoo/dummymodule": "^0.0.1",
+    "@scotsoo/dummymodule": "^1.0.0",
     "@scotsoo/seconddummymodule": "^1.0.0"
   }
 }
