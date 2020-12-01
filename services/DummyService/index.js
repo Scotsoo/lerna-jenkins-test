@@ -1,2 +1,6 @@
 const dummyModule = require('@scotsoo/dummymodule')
-console.log('dummyModule: ', dummyModule)
+const secondDummyModule = require('@scotsoo/seconddummymodule')
+module.exports = {
+  dummyModule,
+  secondDummyModule
+}

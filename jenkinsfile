@@ -9,9 +9,35 @@ pipeline {
         }
       }
     }
-    stage('Trigger') {
+    stage('Test') {
       steps {
-        build job: "test-job", wait: true
+        script {
+          List allServices = sh (
+            script: "npx lerna list -alp | grep \"\$(pwd)/services/\"",
+            returnStdout: true
+          ).trim().split('\n')
+          List changedServices = sh (
+            script: 'npx lerna changed --include-merged-tags -alp | grep \"\$(pwd)/services/\"',
+            returnStdout: true
+          ).trim().split('\n')
+          def servicesToBuild = [:]
+          allServices.each { service ->
+            def (path, name, version) = service.tokenize(':')
+            def serviceStageName = "${name}@${version}".replaceAll("@scotsoo/", "")
+            def findResult = CHANGED_SERVICES.find { changedService ->
+              def (cpath, cname, cversion) = changedService.tokenize(':')
+              return cname == name
+            }
+          }
+          if (findResult == null) {
+            servicesToBuild[serviceStageName] = {
+              Utils.markStageSkippedForConditional(serviceStageName)
+            }
+          } else {
+            servicesToBuild[serviceStageName] = build job: "UnitTest", wait: true
+          }
+          parallel servicesToBuild
+        }
       }
     }
   }
