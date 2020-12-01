@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent { node { label 'master' }}
   stages {
     stage('Install') {
       steps {
@@ -33,7 +33,13 @@ pipeline {
                 Utils.markStageSkippedForConditional(serviceStageName)
               }
             } else {
-              servicesToBuild[serviceStageName] = build job: "UnitTest", wait: true
+              servicesToBuild[serviceStageName] = node('worker') {
+                stage('Test') {
+                  dir (path) {
+                    sh "npm run test"
+                  }
+                }
+              }
             }
           }
           parallel servicesToBuild
