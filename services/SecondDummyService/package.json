@@ -1,0 +1,21 @@
+{
+  "name": "@scotsoo/seconddummyservice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape tests/**/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Scotsoo/lerna-jenkins-test.git",
+    "directory": "services/SecondDummyService"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@scotsoo/dummymodule": "^1.0.0",
+    "@scotsoo/seconddummymodule": "^1.0.0"
+  },
+  "devDependencies": {}
+}
