@@ -1,20 +1,22 @@
 
 node('master') {
+  List allServices = sh (
+    script: "source ~/.bashrc && npx lerna list -alp | grep \"\$(pwd)/services/\"",
+    returnStdout: true
+  ).trim().split('\n')
+  List changedServices = sh (
+    script: 'source ~/.bashrc && npx lerna changed --include-merged-tags -alp | grep \"\$(pwd)/services/\"',
+    returnStdout: true
+  ).trim().split('\n')
   stage('Install') {
     sh 'source ~/.bashrc && npm i'
     sh 'source ~/.bashrc && npx lerna bootstrap'
   }
-  stage('Test') {
-    List allServices = sh (
-      script: "source ~/.bashrc && npx lerna list -alp | grep \"\$(pwd)/services/\"",
-      returnStdout: true
-    ).trim().split('\n')
-    List changedServices = sh (
-      script: 'source ~/.bashrc && npx lerna changed --include-merged-tags -alp | grep \"\$(pwd)/services/\"',
-      returnStdout: true
-    ).trim().split('\n')
-    def servicesToBuild = [:]
+  stage('Stash') {
     stash includes: "**", name: 'build-stash'
+  }
+  stage('Test') {
+    def servicesToTest = [:]
     allServices.each { service ->
       def (path, name, version) = service.tokenize(':')
       def stashName = name.replaceAll('@', '').replace('/', '_')
@@ -23,10 +25,37 @@ node('master') {
         def (cpath, cname, cversion) = changedService.tokenize(':')
         return cname == name
       }
-      sh "echo 'path: ${path}'"
-      // dir (path) {
-      //   stash includes: "**", name: stashName
-      // }
+      if (findResult == null) {
+        servicesToTest[serviceStageName] = {
+          Utils.markStageSkippedForConditional(serviceStageName)
+        }
+      } else {
+        servicesToTest[serviceStageName] = {
+          node('worker') {
+            stage('Test') {
+              def workerPath = path.replaceAll('/var/lib/jenkins/', '/jenkins/')
+              unstash 'build-stash'
+              dir (workerPath) {
+                sh "npm run test"
+              }
+            }
+          }
+        }
+      }
+    }
+    parallel servicesToTest
+  }
+
+  stage('Build') {
+    def servicesToBuild = [:]
+    allServices.each { service ->
+      def (path, name, version) = service.tokenize(':')
+      def stashName = name.replaceAll('@', '').replace('/', '_')
+      def serviceStageName = "${name}@${version}".replaceAll("@scotsoo/", "")
+      def findResult = changedServices.find { changedService ->
+        def (cpath, cname, cversion) = changedService.tokenize(':')
+        return cname == name
+      }
       if (findResult == null) {
         servicesToBuild[serviceStageName] = {
           Utils.markStageSkippedForConditional(serviceStageName)
@@ -38,7 +67,13 @@ node('master') {
               def workerPath = path.replaceAll('/var/lib/jenkins/', '/jenkins/')
               unstash 'build-stash'
               dir (workerPath) {
-                sh "npm run test"
+                def config = load "./config.groovy"
+                if (config['build'] == 'docker') {
+                  sh "docker build ."
+                }
+                if (config['build'] == 'npm') {
+                  sh "npm run build"
+                }
               }
             }
           }
