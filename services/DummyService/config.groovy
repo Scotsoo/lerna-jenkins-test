@@ -1,4 +1,4 @@
-def getPipelineConfig(boolean isProd, boolean isUat) {
+def getPipelineConfig() {
   def config = [:]
   config['build'] = 'npm'
   return config

@@ -67,7 +67,8 @@ node('master') {
               def workerPath = path.replaceAll('/var/lib/jenkins/', '/jenkins/')
               unstash 'build-stash'
               dir (workerPath) {
-                def config = load "./config.groovy"
+                def configFile = load "./config.groovy"
+                def config = configFile.getPipelineConfig()
                 if (config['build'] == 'docker') {
                   sh "docker build ."
                 }
