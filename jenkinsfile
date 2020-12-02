@@ -1,5 +1,6 @@
 
 node('master') {
+  checkout scm
   List allServices = sh (
     script: "source ~/.bashrc && npx lerna list -alp | grep \"\$(pwd)/services/\"",
     returnStdout: true
@@ -12,14 +13,14 @@ node('master') {
     sh 'source ~/.bashrc && npm i'
     sh 'source ~/.bashrc && npx lerna bootstrap'
   }
+  def stashName = "build-stash-${BUILD_NUMBER}"
   stage('Stash') {
-    stash includes: "**", name: 'build-stash'
+    stash includes: "**", name: stashName
   }
   stage('Test') {
     def servicesToTest = [:]
     allServices.each { service ->
       def (path, name, version) = service.tokenize(':')
-      def stashName = name.replaceAll('@', '').replace('/', '_')
       def serviceStageName = "${name}@${version}".replaceAll("@scotsoo/", "")
       def findResult = changedServices.find { changedService ->
         def (cpath, cname, cversion) = changedService.tokenize(':')
@@ -34,7 +35,7 @@ node('master') {
           node('worker') {
             stage('Test') {
               def workerPath = path.replaceAll('/var/lib/jenkins/', '/jenkins/')
-              unstash 'build-stash'
+              unstash stashName
               dir (workerPath) {
                 sh "npm run test"
               }
@@ -50,7 +51,6 @@ node('master') {
     def servicesToBuild = [:]
     allServices.each { service ->
       def (path, name, version) = service.tokenize(':')
-      def stashName = name.replaceAll('@', '').replace('/', '_')
       def serviceStageName = "${name}@${version}".replaceAll("@scotsoo/", "")
       def findResult = changedServices.find { changedService ->
         def (cpath, cname, cversion) = changedService.tokenize(':')
@@ -65,7 +65,7 @@ node('master') {
           node('worker') {
             stage('Test') {
               def workerPath = path.replaceAll('/var/lib/jenkins/', '/jenkins/')
-              unstash 'build-stash'
+              unstash stashName
               dir (workerPath) {
                 def configFile = load "./config.groovy"
                 def config = configFile.getPipelineConfig()
