@@ -1,0 +1,22 @@
+{
+  "name": "@scotsoo/thirddummyservice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "build": "echo \"I am built!\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Scotsoo/lerna-jenkins-test.git",
+    "directory": "services/ThirdDummyService"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@scotsoo/dummymodule": "^1.0.0",
+    "@scotsoo/seconddummymodule": "^1.0.0"
+  },
+  "devDependencies": {}
+}
