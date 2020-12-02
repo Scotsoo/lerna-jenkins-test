@@ -65,6 +65,7 @@ node('master') {
           node('worker') {
             stage('Test') {
               def workerPath = path.replaceAll('/var/lib/jenkins/', '/jenkins/')
+              sh "echo \"wp: ${workerPath}\""
               unstash stashName
               dir (workerPath) {
                 def configFile = load "./config.groovy"
